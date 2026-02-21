@@ -87,6 +87,29 @@ src/
 └── utils/          # Helper functions
 ```
 
+## Future Improvements
+
+1.  **CQRS (Command Query Responsibility Segregation) Pattern**:
+    - Separate write (Command) and read (Query) operations to improve performance at scale.
+    - Implement dedicated logic for data updates vs. optimized data retrieval.
+2.  **Advanced Search (Full-Text Search)**:
+    - Implement MongoDB `$text` indices for powerful title and content searching.
+    - Consider Elasticsearch for complex search requirements in the future.
+3.  **Image Optimization & Cloud Storage**:
+    - Move from static URLs to direct image uploads.
+    - Integrate AWS S3 or Cloudinary for hosting and on-the-fly optimization.
+4.  **Detailed Analytics**:
+    - Track category popularity and user engagement (time spent on articles).
+5.  **Security Improvements**:
+    - Add API Rate Limiting to prevent spam/abuse.
+    - Implement Two-Factor Authentication (2FA) for Admin/Editor roles.
+6.  **API Documentation (Swagger)**:
+    - Integrate Swagger/OpenAPI for automated and interactive API documentation.
+7.  **Redis Enhancements**:
+    - Expand caching to user sessions and common search results.
+8.  **Dockerization**:
+    - Containerize the application for consistent deployment across environments.
+
 ## Strategy: View Counter & Caching
 - **View Counter**: Each hit to `/api/articles/:slug` increments a counter in Redis for that article. A background job runs every 5 minutes, aggregates these counts, and updates the MongoDB `viewCount` field in one batch operation per article.
 - **Cache Invalidation**: When an article is updated or deleted via admin routes, the specific article cache and list caches (home, categories) are invalidated to ensure data consistency.
