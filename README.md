@@ -93,7 +93,6 @@ src/
     - Separate write (Command) and read (Query) operations to improve performance at scale.
     - Implement dedicated logic for data updates vs. optimized data retrieval.
 2.  **Advanced Search (Full-Text Search)**:
-    - Implement MongoDB `$text` indices for powerful title and content searching.
     - Consider Elasticsearch for complex search requirements in the future.
 3.  **Image Optimization & Cloud Storage**:
     - Move from static URLs to direct image uploads.
