@@ -1,8 +1,6 @@
 # Dependencies
 node_modules/
 
-# Environment variables
-.env
 
 # Build outputs
 dist/
@@ -22,3 +20,13 @@ logs/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Environment variables
+# .env (removed from ignore per user request)
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Coverage
+coverage/
