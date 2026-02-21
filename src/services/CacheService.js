@@ -26,6 +26,17 @@ class CacheService {
         return await redisClient.incr(`article_views:${articleId}`);
     }
 
+    async getViews() {
+        const keys = await redisClient.keys('article_views:*');
+        const results = [];
+        for (const key of keys) {
+            const count = await redisClient.get(key);
+            const articleId = key.split(':')[1];
+            results.push({ articleId, count: parseInt(count, 10), key });
+        }
+        return results;
+    }
+
     async getAndResetViews() {
         const keys = await redisClient.keys('article_views:*');
         const results = [];
