@@ -1,4 +1,5 @@
 const ArticleRepository = require('../repositories/ArticleRepository');
+const CategoryRepository = require('../repositories/CategoryRepository');
 const CacheService = require('./CacheService');
 const AppError = require('../utils/AppError');
 const slugify = require('../utils/slugify');
@@ -7,6 +8,15 @@ class ArticleService {
     async createArticle(data) {
         if (!data.title) {
             throw new AppError('Title is required to generate slug.', 422, 'VALIDATION_ERROR');
+        }
+
+        // Validate category existence
+        if (!data.categoryId) {
+            throw new AppError('Validation failed.', 422, 'VALIDATION_ERROR', ['Path `categoryId` is required.']);
+        }
+        const category = await CategoryRepository.findById(data.categoryId);
+        if (!category) {
+            throw new AppError('Resource not found.', 404, 'NOT_FOUND');
         }
 
         let slug = slugify(data.title);

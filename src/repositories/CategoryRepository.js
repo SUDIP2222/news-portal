@@ -1,16 +1,22 @@
 const Category = require('../models/Category');
 
 class CategoryRepository {
-    async findAll() {
-        return await Category.find().select('name slug description');
+    async findAll(language) {
+        let query = {};
+        if (language) {
+            query.language = language;
+        }
+        return await Category.find(query).select('name slug description language');
     }
 
     async findById(id) {
         return await Category.findById(id);
     }
 
-    async findBySlug(slug) {
-        return await Category.findOne({ slug });
+    async findBySlug(slug, language) {
+        const query = { slug };
+        if (language) query.language = language;
+        return await Category.findOne(query);
     }
 
     async create(data) {

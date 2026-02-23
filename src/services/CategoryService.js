@@ -10,7 +10,7 @@ class CategoryService {
         let categories = await CacheService.get(cacheKey);
 
         if (!categories) {
-            categories = await CategoryRepository.findAll();
+            categories = await CategoryRepository.findAll(language);
             await CacheService.set(cacheKey, categories, 60); // 60 seconds
         }
 
@@ -22,13 +22,17 @@ class CategoryService {
             throw new AppError('Name is required to generate slug.', 422, 'VALIDATION_ERROR');
         }
 
+        if (!data.language) {
+            throw new AppError('Language is required.', 422, 'VALIDATION_ERROR');
+        }
+
         let slug = slugify(data.name);
-        // Ensure unique slug
-        let existing = await CategoryRepository.findBySlug(slug);
+        // Ensure unique slug within language
+        let existing = await CategoryRepository.findBySlug(slug, data.language);
         let counter = 1;
         while (existing) {
             const newSlug = `${slug}-${counter}`;
-            existing = await CategoryRepository.findBySlug(newSlug);
+            existing = await CategoryRepository.findBySlug(newSlug, data.language);
             if (!existing) {
                 slug = newSlug;
             }
@@ -43,13 +47,20 @@ class CategoryService {
 
     async updateCategory(id, data) {
         if (data.name) {
+            // Get category to know its language if not provided
+            let category = await CategoryRepository.findById(id);
+            if (!category) {
+                throw new AppError('Resource not found.', 404, 'NOT_FOUND');
+            }
+            const language = data.language || category.language;
+
             let slug = slugify(data.name);
-            // Ensure unique slug (excluding current category)
-            let existing = await CategoryRepository.findBySlug(slug);
+            // Ensure unique slug (excluding current category) within language
+            let existing = await CategoryRepository.findBySlug(slug, language);
             let counter = 1;
             while (existing && existing._id.toString() !== id) {
                 const newSlug = `${slug}-${counter}`;
-                existing = await CategoryRepository.findBySlug(newSlug);
+                existing = await CategoryRepository.findBySlug(newSlug, language);
                 if (!existing || existing._id.toString() === id) {
                     slug = newSlug;
                     break;
