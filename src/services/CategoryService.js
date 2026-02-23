@@ -2,6 +2,7 @@ const CategoryRepository = require('../repositories/CategoryRepository');
 const ArticleRepository = require('../repositories/ArticleRepository');
 const CacheService = require('./CacheService');
 const AppError = require('../utils/AppError');
+const slugify = require('../utils/slugify');
 
 class CategoryService {
     async getAllCategories(language) {
@@ -17,12 +18,47 @@ class CategoryService {
     }
 
     async createCategory(data) {
+        if (!data.name) {
+            throw new AppError('Name is required to generate slug.', 422, 'VALIDATION_ERROR');
+        }
+
+        let slug = slugify(data.name);
+        // Ensure unique slug
+        let existing = await CategoryRepository.findBySlug(slug);
+        let counter = 1;
+        while (existing) {
+            const newSlug = `${slug}-${counter}`;
+            existing = await CategoryRepository.findBySlug(newSlug);
+            if (!existing) {
+                slug = newSlug;
+            }
+            counter++;
+        }
+        data.slug = slug;
+
         const category = await CategoryRepository.create(data);
         await this.invalidateCategoryCache();
         return category;
     }
 
     async updateCategory(id, data) {
+        if (data.name) {
+            let slug = slugify(data.name);
+            // Ensure unique slug (excluding current category)
+            let existing = await CategoryRepository.findBySlug(slug);
+            let counter = 1;
+            while (existing && existing._id.toString() !== id) {
+                const newSlug = `${slug}-${counter}`;
+                existing = await CategoryRepository.findBySlug(newSlug);
+                if (!existing || existing._id.toString() === id) {
+                    slug = newSlug;
+                    break;
+                }
+                counter++;
+            }
+            data.slug = slug;
+        }
+
         const category = await CategoryRepository.update(id, data);
         if (!category) {
             throw new AppError('Resource not found.', 404, 'NOT_FOUND');

@@ -13,6 +13,10 @@ class ArticleRepository {
         return await Article.findById(id).populate('categoryId', 'name slug');
     }
 
+    async findBySlugOnly(slug) {
+        return await Article.findOne({ slug });
+    }
+
     async findBySlug(slug, language) {
         const query = { slug, isDeleted: false, status: 'published' };
         if (language) query.language = language;

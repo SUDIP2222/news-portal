@@ -4,7 +4,7 @@ const ArticleStatus = require('../enums/ArticleStatus');
 
 const articleSchema = new mongoose.Schema({
     title: { type: String, required: true },
-    slug: { type: String, required: true },
+    slug: { type: String },
     summary: { type: String, required: true },
     content: { type: String, required: true },
     language: { type: String, enum: Object.values(Language), required: true },

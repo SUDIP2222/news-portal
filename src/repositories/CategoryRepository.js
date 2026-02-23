@@ -9,6 +9,10 @@ class CategoryRepository {
         return await Category.findById(id);
     }
 
+    async findBySlug(slug) {
+        return await Category.findOne({ slug });
+    }
+
     async create(data) {
         return await Category.create(data);
     }

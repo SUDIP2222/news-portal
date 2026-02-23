@@ -1,15 +1,51 @@
 const ArticleRepository = require('../repositories/ArticleRepository');
 const CacheService = require('./CacheService');
 const AppError = require('../utils/AppError');
+const slugify = require('../utils/slugify');
 
 class ArticleService {
     async createArticle(data) {
+        if (!data.title) {
+            throw new AppError('Title is required to generate slug.', 422, 'VALIDATION_ERROR');
+        }
+
+        let slug = slugify(data.title);
+        // Ensure unique slug
+        let existing = await ArticleRepository.findBySlugOnly(slug);
+        let counter = 1;
+        while (existing) {
+            const newSlug = `${slug}-${counter}`;
+            existing = await ArticleRepository.findBySlugOnly(newSlug);
+            if (!existing) {
+                slug = newSlug;
+            }
+            counter++;
+        }
+        data.slug = slug;
+
         const article = await ArticleRepository.create(data);
         await this.invalidateListCaches();
         return article;
     }
 
     async updateArticle(id, data) {
+        if (data.title) {
+            let slug = slugify(data.title);
+            // Ensure unique slug (excluding current article)
+            let existing = await ArticleRepository.findBySlugOnly(slug);
+            let counter = 1;
+            while (existing && existing._id.toString() !== id) {
+                const newSlug = `${slug}-${counter}`;
+                existing = await ArticleRepository.findBySlugOnly(newSlug);
+                if (!existing || existing._id.toString() === id) {
+                    slug = newSlug;
+                    break;
+                }
+                counter++;
+            }
+            data.slug = slug;
+        }
+
         const article = await ArticleRepository.update(id, data);
         if (!article) {
             throw new AppError('Resource not found.', 404, 'NOT_FOUND');
