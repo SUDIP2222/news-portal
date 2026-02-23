@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const AdminController = require('../controllers/AdminController');
+const CategoryController = require('../controllers/CategoryController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 const UserRole = require('../enums/UserRole');
 
@@ -13,8 +14,8 @@ router.put('/articles/:id', AdminController.updateArticle);
 router.delete('/articles/:id', AdminController.deleteArticle);
 
 // Category routes
-router.post('/categories', AdminController.createCategory);
-router.put('/categories/:id', AdminController.updateCategory);
-router.delete('/categories/:id', AdminController.deleteCategory);
+router.post('/categories', CategoryController.createCategory);
+router.put('/categories/:id', CategoryController.updateCategory);
+router.delete('/categories/:id', CategoryController.deleteCategory);
 
 module.exports = router;
