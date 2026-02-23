@@ -2,8 +2,8 @@ const CategoryRepository = require('../repositories/CategoryRepository');
 const CacheService = require('./CacheService');
 
 class CategoryService {
-    async getAllCategories() {
-        const cacheKey = 'categories_list';
+    async getAllCategories(language) {
+        const cacheKey = `categories_list:${language || 'all'}`;
         let categories = await CacheService.get(cacheKey);
 
         if (!categories) {

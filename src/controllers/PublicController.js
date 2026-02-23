@@ -3,7 +3,9 @@ const ArticleService = require('../services/ArticleService');
 class PublicController {
     async getArticles(req, res, next) {
         try {
-            const data = await ArticleService.getArticles(req.query);
+            const lang = req.query.lang;
+            const query = { ...req.query, language: lang };
+            const data = await ArticleService.getArticles(query);
             res.json(data);
         } catch (error) {
             next(error);
@@ -12,7 +14,9 @@ class PublicController {
 
     async getArticleBySlug(req, res, next) {
         try {
-            const article = await ArticleService.getArticleBySlug(req.params.slug);
+            const { slug } = req.params;
+            const lang = req.query.lang;
+            const article = await ArticleService.getArticleBySlug(slug, lang);
             res.json(article);
         } catch (error) {
             if (error.statusCode) res.status(error.statusCode);
@@ -22,7 +26,8 @@ class PublicController {
 
     async getHome(req, res, next) {
         try {
-            const data = await ArticleService.getHomeData();
+            const lang = req.query.lang;
+            const data = await ArticleService.getHomeData(lang);
             res.json(data);
         } catch (error) {
             next(error);

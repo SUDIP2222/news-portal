@@ -13,8 +13,10 @@ class ArticleRepository {
         return await Article.findById(id).populate('categoryId', 'name slug');
     }
 
-    async findBySlug(slug) {
-        return await Article.findOne({ slug, isDeleted: false, status: 'published' }).populate('categoryId', 'name slug');
+    async findBySlug(slug, language) {
+        const query = { slug, isDeleted: false, status: 'published' };
+        if (language) query.language = language;
+        return await Article.findOne(query).populate('categoryId', 'name slug');
     }
 
     async softDelete(id) {

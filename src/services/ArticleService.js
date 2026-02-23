@@ -1,5 +1,6 @@
 const ArticleRepository = require('../repositories/ArticleRepository');
 const CacheService = require('./CacheService');
+const AppError = require('../utils/AppError');
 
 class ArticleService {
     async createArticle(data) {
@@ -11,11 +12,12 @@ class ArticleService {
     async updateArticle(id, data) {
         const article = await ArticleRepository.update(id, data);
         if (!article) {
-            const error = new Error('Article not found');
-            error.statusCode = 404;
-            throw error;
+            throw new AppError('Article not found', 404);
         }
-        await CacheService.del(`article:${article.slug}`);
+        // Invalidate localized single-article cache
+        if (article.language && article.slug) {
+            await CacheService.del(`article:${article.language}:${article.slug}`);
+        }
         await this.invalidateListCaches();
         return article;
     }
@@ -23,30 +25,28 @@ class ArticleService {
     async deleteArticle(id) {
         const article = await ArticleRepository.softDelete(id);
         if (!article) {
-            const error = new Error('Article not found');
-            error.statusCode = 404;
-            throw error;
+            throw new AppError('Article not found', 404);
         }
-        await CacheService.del(`article:${article.slug}`);
+        if (article.language && article.slug) {
+            await CacheService.del(`article:${article.language}:${article.slug}`);
+        }
         await this.invalidateListCaches();
         return article;
     }
 
-    async getArticleBySlug(slug) {
-        const cacheKey = `article:${slug}`;
+    async getArticleBySlug(slug, language) {
+        const cacheKey = `article:${language}:${slug}`;
         let article = await CacheService.get(cacheKey);
 
         if (!article) {
-            article = await ArticleRepository.findBySlug(slug);
+            article = await ArticleRepository.findBySlug(slug, language);
             if (article) {
                 await CacheService.set(cacheKey, article, 300); // 5 minutes
             }
         }
 
         if (!article) {
-            const error = new Error('Article not found');
-            error.statusCode = 404;
-            throw error;
+            throw new AppError('Article not found', 404);
         }
 
         // Increment view count in Redis
@@ -87,14 +87,15 @@ class ArticleService {
         return data;
     }
 
-    async getHomeData() {
-        const cacheKey = 'home_data';
+    async getHomeData(language) {
+        const cacheKey = `home_data:${language}`;
         let homeData = await CacheService.get(cacheKey);
 
         if (!homeData) {
+            const langFilter = language ? { language } : {};
             // Latest articles
             const latest = await ArticleRepository.findAllPublic({ 
-                filters: {}, 
+                filters: { ...langFilter }, 
                 sort: '-publishedAt', 
                 skip: 0, 
                 limit: 5 
@@ -102,7 +103,7 @@ class ArticleService {
 
             // Featured articles
             const featured = await ArticleRepository.findAllPublic({ 
-                filters: { isFeatured: true }, 
+                filters: { isFeatured: true, ...langFilter }, 
                 sort: '-publishedAt', 
                 skip: 0, 
                 limit: 5 
@@ -110,7 +111,7 @@ class ArticleService {
 
             // Trending articles (by viewCount)
             const trending = await ArticleRepository.findAllPublic({ 
-                filters: {}, 
+                filters: { ...langFilter }, 
                 sort: '-viewCount', 
                 skip: 0, 
                 limit: 5 
@@ -124,8 +125,8 @@ class ArticleService {
     }
 
     async invalidateListCaches() {
-        await CacheService.del('home_data');
-        await CacheService.del('categories_list');
+        await CacheService.delByPattern('home_data:*');
+        await CacheService.delByPattern('categories_list:*');
         await CacheService.delByPattern('articles_list:*');
     }
 }

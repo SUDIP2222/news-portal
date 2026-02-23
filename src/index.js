@@ -21,9 +21,9 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // Routes
+app.use('/api', require('./routes/publicRoutes'));
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes'));
-app.use('/api', require('./routes/publicRoutes'));
 
 // Error handling
 app.use(notFound);
