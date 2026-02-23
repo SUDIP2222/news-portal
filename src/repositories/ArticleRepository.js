@@ -49,6 +49,10 @@ class ArticleRepository {
     async updateViewCount(id, increment) {
         return await Article.findByIdAndUpdate(id, { $inc: { viewCount: increment } });
     }
+
+    async countByCategoryId(categoryId) {
+        return await Article.countDocuments({ categoryId, isDeleted: false });
+    }
 }
 
 module.exports = new ArticleRepository();

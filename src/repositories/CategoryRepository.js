@@ -8,6 +8,18 @@ class CategoryRepository {
     async findById(id) {
         return await Category.findById(id);
     }
+
+    async create(data) {
+        return await Category.create(data);
+    }
+
+    async update(id, data) {
+        return await Category.findByIdAndUpdate(id, data, { new: true });
+    }
+
+    async delete(id) {
+        return await Category.findByIdAndDelete(id);
+    }
 }
 
 module.exports = new CategoryRepository();
