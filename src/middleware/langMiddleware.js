@@ -4,7 +4,7 @@ const AppError = require('../utils/AppError');
 const validateLanguage = (req, res, next) => {
     const lang = req.query.lang || req.params.lang;
     if (!lang || !Object.values(Language).includes(lang)) {
-        return next(new AppError(`Invalid or missing language. Supported languages are: ${Object.values(Language).join(', ')}`, 400));
+        return next(new AppError('Invalid request data.', 400, 'BAD_REQUEST'));
     }
     next();
 };

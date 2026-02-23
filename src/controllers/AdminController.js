@@ -15,7 +15,6 @@ class AdminController {
             const article = await ArticleService.updateArticle(req.params.id, req.body);
             res.json(article);
         } catch (error) {
-            if (error.statusCode) res.status(error.statusCode);
             next(error);
         }
     }
@@ -25,7 +24,6 @@ class AdminController {
             await ArticleService.deleteArticle(req.params.id);
             res.json({ message: 'Article removed (soft delete)' });
         } catch (error) {
-            if (error.statusCode) res.status(error.statusCode);
             next(error);
         }
     }

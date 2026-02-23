@@ -19,7 +19,6 @@ class PublicController {
             const article = await ArticleService.getArticleBySlug(slug, lang);
             res.json(article);
         } catch (error) {
-            if (error.statusCode) res.status(error.statusCode);
             next(error);
         }
     }

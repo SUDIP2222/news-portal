@@ -12,7 +12,7 @@ class ArticleService {
     async updateArticle(id, data) {
         const article = await ArticleRepository.update(id, data);
         if (!article) {
-            throw new AppError('Article not found', 404);
+            throw new AppError('Resource not found.', 404, 'NOT_FOUND');
         }
         // Invalidate localized single-article cache
         if (article.language && article.slug) {
@@ -25,7 +25,7 @@ class ArticleService {
     async deleteArticle(id) {
         const article = await ArticleRepository.softDelete(id);
         if (!article) {
-            throw new AppError('Article not found', 404);
+            throw new AppError('Resource not found.', 404, 'NOT_FOUND');
         }
         if (article.language && article.slug) {
             await CacheService.del(`article:${article.language}:${article.slug}`);
@@ -46,7 +46,7 @@ class ArticleService {
         }
 
         if (!article) {
-            throw new AppError('Article not found', 404);
+            throw new AppError('Resource not found.', 404, 'NOT_FOUND');
         }
 
         // Increment view count in Redis

@@ -2,15 +2,14 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const Role = require('../models/Role');
 const UserRole = require('../enums/UserRole');
+const AppError = require('../utils/AppError');
 
 class AuthService {
     async register({ name, email, password, roles }) {
         const userExists = await User.findOne({ email });
 
         if (userExists) {
-            const error = new Error('User already exists');
-            error.statusCode = 400;
-            throw error;
+            throw new AppError('Resource already exists.', 409, 'CONFLICT');
         }
 
         let roleIds = [];
@@ -48,9 +47,7 @@ class AuthService {
                 token: this.generateToken(user._id)
             };
         } else {
-            const error = new Error('Invalid email or password');
-            error.statusCode = 401;
-            throw error;
+            throw new AppError('Unauthorized access.', 401, 'UNAUTHORIZED');
         }
     }
 
