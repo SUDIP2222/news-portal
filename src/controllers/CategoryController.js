@@ -1,4 +1,3 @@
-const ArticleService = require('../services/ArticleService');
 const CategoryService = require('../services/CategoryService');
 
 class CategoryController {
