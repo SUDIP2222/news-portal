@@ -19,7 +19,6 @@ const syncViewsToDB = async () => {
                 syncedCount++;
             } catch (err) {
                 console.error(`Failed to sync views for article ${update.articleId}:`, err);
-                // Key remains in Redis for the next sync attempt
             }
         }
 

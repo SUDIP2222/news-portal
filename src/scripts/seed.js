@@ -25,7 +25,6 @@ const seedData = async () => {
         await Article.deleteMany();
         await Role.deleteMany();
 
-        // 1. Create Roles
         console.log('Creating roles...');
         const roles = await Role.insertMany([
             { name: UserRole.ADMIN, description: 'Full access to all features' },
@@ -37,7 +36,6 @@ const seedData = async () => {
         const editorRole = roles.find(r => r.name === UserRole.EDITOR)._id;
         const publicRole = roles.find(r => r.name === UserRole.PUBLIC)._id;
 
-        // 2. Create Demo Users
         console.log('Creating demo users...');
         const admin = await User.create({
             name: 'Super Admin',
@@ -57,19 +55,14 @@ const seedData = async () => {
 
         console.log('Creating categories...');
         const categoriesData = [
-            // Politics
             { name: 'Politics', description: 'Political news and analysis', language: Language.EN },
             { name: 'রাজনীতি', description: 'রাজনৈতিক খবর ও বিশ্লেষণ', language: Language.BN },
-            // Technology
             { name: 'Technology', description: 'Latest in tech and gadgets', language: Language.EN },
             { name: 'প্রযুক্তি', description: 'প্রযুক্তির সর্বশেষ খবর', language: Language.BN },
-            // Sports
             { name: 'Sports', description: 'Sports updates from around the world', language: Language.EN },
             { name: 'খেলাধুলা', description: 'বিশ্বের সব খেলার আপডেট', language: Language.BN },
-            // Entertainment
             { name: 'Entertainment', description: 'Movies, music and celebrity news', language: Language.EN },
             { name: 'বিনোদন', description: 'সিনেমা, গান ও তারকাদের খবর', language: Language.BN },
-            // Business
             { name: 'Business', description: 'Stock market and economic updates', language: Language.EN },
             { name: 'ব্যবসা', description: 'শেয়ার বাজার ও অর্থনৈতিক আপডেট', language: Language.BN }
         ];
@@ -88,10 +81,8 @@ const seedData = async () => {
 
         console.log('Categories created successfully.');
 
-        // 3. Create Demo Articles
         console.log('Creating articles...');
         const articles = [
-            // Pair 1: Future of AI
             {
                 title: 'The Future of AI in 2026',
                 summary: 'Artificial Intelligence continues to evolve at a rapid pace.',
@@ -118,7 +109,6 @@ const seedData = async () => {
                 isFeatured: true,
                 viewCount: 600
             },
-            // Pair 2: Champions League
             {
                 title: 'Champions League Finals Preview',
                 summary: 'The biggest club football match of the year is almost here.',
@@ -145,7 +135,6 @@ const seedData = async () => {
                 isFeatured: false,
                 viewCount: 760
             },
-            // Pair 3: Global Economy
             {
                 title: 'Global Economy Outlook 2026',
                 summary: 'A look at the challenges and opportunities in the global economy.',
@@ -172,7 +161,6 @@ const seedData = async () => {
                 isFeatured: false,
                 viewCount: 510
             },
-            // Pair 4: Tech Gadgets
             {
                 title: 'Top Tech Gadgets to Watch in 2026',
                 summary: 'The most anticipated gadgets releasing this year.',

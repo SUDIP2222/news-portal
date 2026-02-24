@@ -11,7 +11,7 @@ class CategoryService {
 
         if (!categories) {
             categories = await CategoryRepository.findAll(language);
-            await CacheService.set(cacheKey, categories, 60); // 60 seconds
+            await CacheService.set(cacheKey, categories, 60);
         }
 
         return categories;
@@ -27,7 +27,7 @@ class CategoryService {
         }
 
         let slug = slugify(data.name);
-        // Ensure unique slug within language
+
         let existing = await CategoryRepository.findBySlug(slug, data.language);
         let counter = 1;
         while (existing) {
@@ -47,7 +47,7 @@ class CategoryService {
 
     async updateCategory(id, data) {
         if (data.name) {
-            // Get category to know its language if not provided
+
             let category = await CategoryRepository.findById(id);
             if (!category) {
                 throw new AppError('Resource not found.', 404, 'NOT_FOUND');
@@ -55,7 +55,7 @@ class CategoryService {
             const language = data.language || category.language;
 
             let slug = slugify(data.name);
-            // Ensure unique slug (excluding current category) within language
+
             let existing = await CategoryRepository.findBySlug(slug, language);
             let counter = 1;
             while (existing && existing._id.toString() !== id) {
@@ -79,7 +79,6 @@ class CategoryService {
     }
 
     async deleteCategory(id) {
-        // Check if category is used by any article
         const articleCount = await ArticleRepository.countByCategoryId(id);
         if (articleCount > 0) {
             throw new AppError('Category is in use and cannot be deleted.', 400, 'BAD_REQUEST');
@@ -96,7 +95,6 @@ class CategoryService {
 
     async invalidateCategoryCache() {
         await CacheService.delByPattern('categories_list:*');
-        // Also invalidate article lists and home data as they might contain category info
         await CacheService.delByPattern('articles_list:*');
         await CacheService.delByPattern('home_data:*');
     }

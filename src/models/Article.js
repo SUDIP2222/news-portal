@@ -18,7 +18,6 @@ const articleSchema = new mongoose.Schema({
     isFeatured: { type: Boolean, default: false }
 }, { timestamps: true });
 
-// Proper indexing strategy
 articleSchema.index({ slug: 1 }, { unique: true });
 articleSchema.index({ categoryId: 1, status: 1, isDeleted: 1, publishedAt: -1 });
 articleSchema.index({ language: 1, status: 1, isDeleted: 1, publishedAt: -1 });

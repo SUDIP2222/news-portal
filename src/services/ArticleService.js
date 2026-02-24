@@ -10,7 +10,6 @@ class ArticleService {
             throw new AppError('Title is required to generate slug.', 422, 'VALIDATION_ERROR');
         }
 
-        // Validate category existence
         if (!data.categoryId) {
             throw new AppError('Validation failed.', 422, 'VALIDATION_ERROR', ['Path `categoryId` is required.']);
         }
@@ -20,7 +19,6 @@ class ArticleService {
         }
 
         let slug = slugify(data.title);
-        // Ensure unique slug
         let existing = await ArticleRepository.findBySlugOnly(slug);
         let counter = 1;
         while (existing) {
@@ -41,7 +39,6 @@ class ArticleService {
     async updateArticle(id, data) {
         if (data.title) {
             let slug = slugify(data.title);
-            // Ensure unique slug (excluding current article)
             let existing = await ArticleRepository.findBySlugOnly(slug);
             let counter = 1;
             while (existing && existing._id.toString() !== id) {
@@ -60,7 +57,6 @@ class ArticleService {
         if (!article) {
             throw new AppError('Resource not found.', 404, 'NOT_FOUND');
         }
-        // Invalidate localized single-article cache
         if (article.language && article.slug) {
             await CacheService.del(`article:${article.language}:${article.slug}`);
         }
@@ -87,7 +83,7 @@ class ArticleService {
         if (!article) {
             article = await ArticleRepository.findBySlug(slug, language);
             if (article) {
-                await CacheService.set(cacheKey, article, 300); // 5 minutes
+                await CacheService.set(cacheKey, article, 300);
             }
         }
 
@@ -95,7 +91,6 @@ class ArticleService {
             throw new AppError('Resource not found.', 404, 'NOT_FOUND');
         }
 
-        // Increment view count in Redis
         await CacheService.incrementView(article._id);
 
         return article;
@@ -127,7 +122,7 @@ class ArticleService {
                 }
             };
 
-            await CacheService.set(cacheKey, data, 60); // 60 seconds
+            await CacheService.set(cacheKey, data, 60);
         }
 
         return data;
@@ -139,7 +134,6 @@ class ArticleService {
 
         if (!homeData) {
             const langFilter = language ? { language } : {};
-            // Latest articles
             const latest = await ArticleRepository.findAllPublic({ 
                 filters: { ...langFilter }, 
                 sort: '-publishedAt', 
@@ -147,7 +141,6 @@ class ArticleService {
                 limit: 5 
             });
 
-            // Featured articles
             const featured = await ArticleRepository.findAllPublic({ 
                 filters: { isFeatured: true, ...langFilter }, 
                 sort: '-publishedAt', 
@@ -155,7 +148,6 @@ class ArticleService {
                 limit: 5 
             });
 
-            // Trending articles (by viewCount)
             const trending = await ArticleRepository.findAllPublic({ 
                 filters: { ...langFilter }, 
                 sort: '-viewCount', 
@@ -164,7 +156,7 @@ class ArticleService {
             });
 
             homeData = { latest, featured, trending };
-            await CacheService.set(cacheKey, homeData, 60); // 60 seconds
+            await CacheService.set(cacheKey, homeData, 60);
         }
 
         return homeData;

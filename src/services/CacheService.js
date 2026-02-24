@@ -22,7 +22,6 @@ class CacheService {
     }
 
     async incrementView(articleId) {
-        // article_views:{id} as key
         return await redisClient.incr(`article_views:${articleId}`);
     }
 

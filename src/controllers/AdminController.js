@@ -1,7 +1,6 @@
 const ArticleService = require('../services/ArticleService');
 
 class AdminController {
-    // Article handlers
     async createArticle(req, res, next) {
         try {
             const article = await ArticleService.createArticle(req.body);

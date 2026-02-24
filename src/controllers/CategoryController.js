@@ -12,7 +12,6 @@ class CategoryController {
         }
     }
 
-    // Category CRUD handlers
     async createCategory(req, res, next) {
         try {
             const category = await CategoryService.createCategory(req.body);
